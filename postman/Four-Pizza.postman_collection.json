@@ -1,0 +1,661 @@
+{
+  "info": {
+    "name": "Four Pizza | Menu API assessment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Import the matching environment and configure a staff demo account. Run against a dedicated seeded assessment database. Each CRUD run creates and removes one temporary pizza."
+  },
+  "item": [
+    {
+      "name": "A. Public menu and permissions",
+      "item": [
+        {
+          "name": "01  List the menu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Menu includes a seeded pizza with size options\", () => {",
+                  "  const pizzas = pm.response.json().pizzas;",
+                  "  pm.expect(pizzas).to.be.an(\"array\");",
+                  "  const pizza = pizzas.find(item => item.name === \"Margherita\");",
+                  "  pm.expect(pizza).to.be.an(\"object\");",
+                  "  pm.expect(pizza.sizes.map(size => size.inches)).to.include(10);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02  Search for pepperoni",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas?q=pepperoni",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "pepperoni"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Keyword search returns Beef Pepperoni\", () => {",
+                  "  const pizzas = pm.response.json().pizzas;",
+                  "  pm.expect(pizzas.map(pizza => pizza.name)).to.include(\"Beef Pepperoni\");",
+                  "  for (const pizza of pizzas) {",
+                  "    pm.expect([pizza.name, pizza.description, pizza.category].join(\" \").toLowerCase()).to.include(\"pepperoni\");",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03  Create a customer account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "A fresh environment generates one disposable test customer. Reusing the environment may return HTTP 409. The next request must still successfully log in."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get(\"customerEmail\")) {",
+                  "  pm.environment.set(\"customerEmail\", \"menu-demo-\" + pm.variables.replaceIn(\"{{$guid}}\") + \"@example.test\");",
+                  "}",
+                  "if (!pm.environment.get(\"customerPassword\")) {",
+                  "  pm.environment.set(\"customerPassword\", \"Menu!\" + pm.variables.replaceIn(\"{{$guid}}\"));",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Created, or this test customer already exists\", () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04  Log in as the customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.unset(\"customerToken\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Returns a customer JWT\", () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.user.role).to.equal(\"customer\");",
+                  "  pm.expect(body.token).to.match(/^[^.]+\\.[^.]+\\.[^.]+$/);",
+                  "  pm.environment.set(\"customerToken\", body.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05  Try writing without signing in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Unauthenticated write check\",\n  \"description\": \"A temporary pizza used during the assessment.\",\n  \"category\": \"Signature\",\n  \"sizes\": [\n    {\n      \"inches\": 10,\n      \"slices\": 6,\n      \"price\": 18.5,\n      \"available\": true\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06  Try writing as a customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Customer write check\",\n  \"description\": \"A temporary pizza used during the assessment.\",\n  \"category\": \"Signature\",\n  \"sizes\": [\n    {\n      \"inches\": 10,\n      \"slices\": 6,\n      \"price\": 18.5,\n      \"available\": true\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "B. Staff menu editing",
+      "item": [
+        {
+          "name": "07  Log in as staff",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{staffEmail}}\",\n  \"password\": \"{{staffPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Register a separate staff test address and promote it once as described in the README."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.unset(\"staffToken\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Returns a staff JWT\", () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.user.role).to.equal(\"staff\");",
+                  "  pm.expect(body.token).to.match(/^[^.]+\\.[^.]+\\.[^.]+$/);",
+                  "  pm.environment.set(\"staffToken\", body.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08  Create a temporary pizza",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{testPizzaName}}\",\n  \"description\": \"A temporary pizza used during the assessment.\",\n  \"category\": \"Signature\",\n  \"sizes\": [\n    {\n      \"inches\": 10,\n      \"slices\": 6,\n      \"price\": 18.5,\n      \"available\": true\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.unset(\"testPizzaId\");",
+                  "pm.environment.set(\"testPizzaName\", \"Assessment Special \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Store the ID of this run's temporary pizza\", () => {",
+                  "  const pizza = pm.response.json().pizza;",
+                  "  pm.expect(pizza.name).to.equal(pm.environment.get(\"testPizzaName\"));",
+                  "  pm.expect(pizza._id).to.match(/^[a-f0-9]{24}$/i);",
+                  "  pm.environment.set(\"testPizzaId\", pizza._id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09  Read the temporary pizza",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas/{{testPizzaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas",
+                "{{testPizzaId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Read the newly created pizza\", () => {",
+                  "  const pizza = pm.response.json().pizza;",
+                  "  pm.expect(pizza.name).to.equal(pm.environment.get(\"testPizzaName\"));",
+                  "  pm.expect(pizza.sizes[0].price).to.equal(18.5);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10  Change its price and availability",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas/{{testPizzaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas",
+                "{{testPizzaId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{testPizzaName}}\",\n  \"description\": \"A temporary pizza used during the assessment.\",\n  \"category\": \"Signature\",\n  \"sizes\": [\n    {\n      \"inches\": 10,\n      \"slices\": 6,\n      \"price\": 17,\n      \"available\": false\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Price and availability changed\", () => {",
+                  "  const pizza = pm.response.json().pizza;",
+                  "  pm.expect(pizza._id).to.equal(pm.environment.get(\"testPizzaId\"));",
+                  "  pm.expect(pizza.sizes[0].price).to.equal(17);",
+                  "  pm.expect(pizza.sizes[0].available).to.equal(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11  Delete the temporary pizza",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas/{{testPizzaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas",
+                "{{testPizzaId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12  Confirm the pizza was deleted",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas/{{testPizzaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas",
+                "{{testPizzaId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "C. AI-powered menu search",
+      "item": [
+        {
+          "name": "13  Ask for available 10-inch pizzas under S$20",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pizzas/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pizzas",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Which 10-inch pizzas are available for under S$20?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Run with the sample dataset and a configured LLM provider. This request calls the configured LLM provider once."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Returns structured criteria and only matching sizes\", () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.filter).to.be.an(\"object\");",
+                  "  pm.expect(body.pizzas).to.be.an(\"array\").that.is.not.empty;",
+                  "  for (const pizza of body.pizzas) {",
+                  "    pm.expect(pizza.sizes).to.be.an(\"array\").that.is.not.empty;",
+                  "    for (const size of pizza.sizes) {",
+                  "      pm.expect(size.inches).to.equal(10);",
+                  "      pm.expect(size.available).to.equal(true);",
+                  "      pm.expect(size.price).to.be.below(20);",
+                  "    }",
+                  "  }",
+                  "  const names = body.pizzas.map(pizza => pizza.name);",
+                  "  pm.expect(names).to.include(\"Margherita\");",
+                  "  pm.expect(names).not.to.include(\"Sambal Prawn\");",
+                  "  pm.expect(names).not.to.include(\"Garden Pesto\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

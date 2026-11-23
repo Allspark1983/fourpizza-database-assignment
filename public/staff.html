@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#103b31">
+  <title>Staff access · Four Pizza</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/common.js"></script>
+  <script defer src="/staff.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to staff workspace</a>
+  <header class="masthead">
+    <div class="nav wrap">
+      <a class="wordmark" href="/" aria-label="Four Pizza home"><img class="brand-badge" alt="" src="/images/fourpizza-badge.webp">Four Pizza</a>
+      <nav aria-label="Main navigation"><a href="/#menu">Menu</a><a href="/staff.html" class="active" aria-current="page">Staff access</a></nav>
+    </div>
+  </header>
+  <main id="workspace" class="wrap staff-main">
+    <div class="section-head staff-title">
+      <div><p class="kicker">Four Pizza kitchen</p><h1>Menu workspace</h1></div>
+      <button id="sign-out" class="button secondary" type="button" hidden>Sign out</button>
+    </div>
+    <section id="auth-section" class="auth-panel" aria-labelledby="auth-title">
+      <h2 id="auth-title">Staff sign-in</h2>
+      <p id="auth-help">Use your staff account to edit menu items, prices and availability.</p>
+      <form id="auth-form" class="form-stack">
+        <div><label for="email">Email address</label><input id="email" type="email" maxlength="254" required autocomplete="username"></div>
+        <div><label for="password">Password</label><input id="password" type="password" maxlength="128" required autocomplete="current-password"></div>
+        <button id="auth-submit" class="button" type="submit">Sign in</button>
+      </form>
+      <p id="auth-message" class="status" role="status"></p>
+      <button id="auth-toggle" class="text-btn" type="button">Create an account</button>
+    </section>
+    <section id="staff-section" hidden aria-label="Menu editor">
+      <p id="staff-identity" class="identity"></p>
+      <p id="staff-message" class="status" role="status"></p>
+      <div class="editor-grid">
+        <section class="inventory" aria-labelledby="inventory-title">
+          <div class="section-head compact"><h2 id="inventory-title">Menu items</h2><button id="add-pizza" class="button" type="button">Add pizza</button></div>
+          <div id="inventory-list" class="inventory-list"></div>
+          <button id="retry-inventory" class="text-btn" type="button" hidden>Reload menu items</button>
+        </section>
+        <section id="edit-panel" class="edit-panel" hidden aria-labelledby="editor-title">
+          <h2 id="editor-title" tabindex="-1">Add pizza</h2>
+          <form id="pizza-form" class="form-stack">
+            <div><label for="pizza-name">Pizza name</label><input id="pizza-name" type="text" required maxlength="100"></div>
+            <div><label for="description">Description</label><textarea id="description" required maxlength="400" rows="3"></textarea></div>
+            <div><label for="category">Category</label><select id="category"><option>Classic</option><option>Signature</option><option>Veggie</option></select></div>
+            <fieldset id="variants"><legend>Sizes and prices</legend><p class="hint">Include the sizes you sell. Mark a size as sold out when it runs out.</p><div id="variant-list"></div></fieldset>
+            <div class="form-actions"><button id="save-pizza" class="button" type="submit">Save pizza</button><button id="cancel-edit" class="button secondary" type="button">Cancel</button></div>
+          </form>
+          <p id="editor-message" class="status" role="status"></p>
+        </section>
+      </div>
+    </section>
+    <dialog id="delete-dialog" aria-labelledby="delete-title">
+      <h2 id="delete-title">Delete pizza?</h2><p id="delete-detail"></p>
+      <div class="form-actions"><button id="cancel-delete" class="button secondary" type="button" autofocus>Keep pizza</button><button id="confirm-delete" class="button danger" type="button">Delete pizza</button></div>
+    </dialog>
+    <noscript>Enable JavaScript to sign in and manage the menu.</noscript>
+  </main>
+  <footer><div class="wrap footer-inner"><span class="footer-brand">Four Pizza</span><span>Jalan Lokam, Singapore</span></div></footer>
+</body>
+</html>

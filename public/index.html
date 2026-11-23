@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#103b31">
+  <title>Pizza menu · Four Pizza</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/common.js"></script>
+  <script defer src="/menu.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#menu">Skip to menu</a>
+  <header class="masthead">
+    <div class="wrap nav">
+      <a class="wordmark" href="/" aria-label="Four Pizza home"><img class="brand-badge" alt="" src="/images/fourpizza-badge.webp">Four Pizza</a>
+      <nav aria-label="Main navigation"><a class="active" aria-current="page" href="#menu">Menu</a><a href="/staff.html">Staff access</a></nav>
+    </div>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="hero-location">Jalan Lokam, Singapore</p>
+          <h1 id="hero-title">Pizza for the<br><em>whole table.</em></h1>
+          <p>Find your favourite, pick a size and see what’s available on the Four Pizza menu.</p>
+          <a class="button hero-button" href="#menu">Explore the menu</a>
+        </div>
+        <div class="hero-art" role="img" aria-label="Pepperoni pizza with a slice being lifted"></div>
+      </div>
+    </section>
+    <div class="checker" aria-hidden="true"></div>
+    <section id="menu" class="wrap menu-section" aria-labelledby="menu-title">
+      <div class="section-head"><h2 id="menu-title">The pizza menu</h2><p>Sample menu · Prices in SGD</p></div>
+      <form id="search-form" class="search-panel" role="search">
+        <div class="switch" aria-label="Search mode">
+          <button id="keyword-mode" type="button" aria-pressed="true">Keyword search</button>
+          <button id="ai-mode" type="button" aria-pressed="false">Ask the menu</button>
+        </div>
+        <label id="search-label" for="search-input">Pizza name or ingredient</label>
+        <div class="input-action">
+          <input id="search-input" type="search" placeholder="Try mushroom or pepperoni" maxlength="100">
+          <button id="search-submit" class="button" type="submit">Search</button>
+        </div>
+        <p class="hint" id="ai-hint" hidden>Ask a question about size, price or availability. Results show the matching sizes.</p>
+      </form>
+      <div class="menu-tools"><div class="categories" aria-label="Filter by category">
+        <button type="button" data-category="All" aria-pressed="true">All pizzas</button>
+        <button type="button" data-category="Classic" aria-pressed="false">Classic</button>
+        <button type="button" data-category="Signature" aria-pressed="false">Signature</button>
+        <button type="button" data-category="Veggie" aria-pressed="false">Veggie</button>
+      </div><button id="reset-menu" type="button" class="text-btn" hidden>Reset filters</button></div>
+      <p id="menu-status" class="status" role="status">Loading menu…</p>
+      <div id="pizzas" class="pizza-grid"></div>
+      <noscript>Enable JavaScript to load the menu and check the available sizes.</noscript>
+    </section>
+  </main>
+  <footer><div class="wrap footer-inner"><span class="footer-brand">Four Pizza</span><span>Jalan Lokam, Singapore</span></div></footer>
+</body>
+</html>

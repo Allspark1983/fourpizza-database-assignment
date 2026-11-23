@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Margherita",
+    "description": "Tomato, mozzarella and torn basil on a blistered crust.",
+    "category": "Classic",
+    "sizes": [
+      { "inches": 8, "slices": 4, "price": 10, "available": true },
+      { "inches": 10, "slices": 6, "price": 14, "available": true },
+      { "inches": 14, "slices": 8, "price": 22, "available": true }
+    ]
+  },
+  {
+    "name": "Beef Pepperoni",
+    "description": "Beef pepperoni, mozzarella and oregano over tomato sauce.",
+    "category": "Classic",
+    "sizes": [
+      { "inches": 8, "slices": 4, "price": 12, "available": true },
+      { "inches": 10, "slices": 6, "price": 17.5, "available": true },
+      { "inches": 14, "slices": 8, "price": 26, "available": false }
+    ]
+  },
+  {
+    "name": "Roasted Mushroom",
+    "description": "Roasted mushrooms, garlic cream, mozzarella and thyme.",
+    "category": "Veggie",
+    "sizes": [
+      { "inches": 8, "slices": 4, "price": 11, "available": true },
+      { "inches": 10, "slices": 6, "price": 16, "available": true },
+      { "inches": 14, "slices": 8, "price": 23.5, "available": true }
+    ]
+  },
+  {
+    "name": "Garden Pesto",
+    "description": "Basil pesto, roasted peppers, cherry tomatoes and mozzarella.",
+    "category": "Veggie",
+    "sizes": [
+      { "inches": 8, "slices": 4, "price": 11.5, "available": true },
+      { "inches": 10, "slices": 6, "price": 18, "available": false },
+      { "inches": 14, "slices": 8, "price": 24, "available": true }
+    ]
+  },
+  {
+    "name": "Smoky Chicken",
+    "description": "Smoky barbecue chicken, red onion, mozzarella and spring onion.",
+    "category": "Signature",
+    "sizes": [
+      { "inches": 8, "slices": 4, "price": 13, "available": true },
+      { "inches": 10, "slices": 6, "price": 19, "available": true },
+      { "inches": 14, "slices": 8, "price": 28, "available": true }
+    ]
+  },
+  {
+    "name": "Sambal Prawn",
+    "description": "Prawns, sambal tomato sauce, mozzarella and fresh coriander.",
+    "category": "Signature",
+    "sizes": [
+      { "inches": 8, "slices": 4, "price": 15, "available": true },
+      { "inches": 10, "slices": 6, "price": 20, "available": true },
+      { "inches": 14, "slices": 8, "price": 32, "available": true }
+    ]
+  }
+]
